@@ -86,20 +86,24 @@ export class HandlePantoMessage {
                 ]));
                 break;
             case MessageType.Heartbeat:
-                // TODO BIS handle the heartbeat by send the correct response
-                // TODO BIS read the protocol definition here
-                // TODO BIS https://github.com/HassoPlattnerInstituteHCI/dualpantoframework/blob/BIS/documentation/protocol/protocol.md
-                // TODO BIS look at the MessageType.Sync to get an idea
+                this.sendDebug("received: heartbeat");
+                // send SyncAck message
+                this.sendMessage(new Uint8Array([
+                    0x44, 0x50, 0x81, 0x00, 0x00, 0x00
+                ]));
                 break;
-            // TODO BIS handle debug messages here
+            case MessageType.DebugLog:
+                const msg = message.message.subarray(6, payloadLength + 6).toString();
+                console.log(msg);
+                break;
             case MessageType.InvalidData:
                 console.error("received: invalid data");
                 break;
             case MessageType.Position:
                 const x1 = message.message.subarray(6, 10);
                 const x = new DataView(new Uint8Array(x1).buffer).getFloat32(0);
-                // TODO BIS parse y the same way as x
-                const y = 42;
+                const y1 = message.message.subarray(10, 14);
+                const y = new DataView(new Uint8Array(y1).buffer).getFloat32(0);
                 const minX = -80;
                 const maxX = 140;
                 const minY = -16;
